@@ -1,20 +1,62 @@
-<div align="center">
-<img width="1200" height="475" alt="GHBanner" src="https://github.com/user-attachments/assets/0aa67016-6eaf-458a-adb2-6e31a0763ed6" />
-</div>
+# Xylon IDE - React Application
 
-# Run and deploy your AI Studio app
+This is a web-based IDE for the Xylon programming language, built with React, TypeScript, and Tailwind CSS.
 
-This contains everything you need to run your app locally.
+## Features
 
-View your app in AI Studio: https://ai.studio/apps/drive/1XJC4GX6E_X62HyhfDPyWGZbuqZ2d7LaT
+- A complete file explorer with file/folder creation, deletion, and project download.
+- A code editor with syntax highlighting for the Xylon language.
+- A floating, conversational AI assistant powered by the Google Gemini API.
+- AI-powered file and folder creation.
+- A functional terminal with a built-in interpreter for the Xylon language and a package manager (`xip`).
+- Persistent file system using browser localStorage.
 
-## Run Locally
+## Setup and Installation
 
-**Prerequisites:**  Node.js
+### 1. Prerequisites
 
+- [Node.js](https://nodejs.org/) (v16.x or later recommended)
+- [npm](https://www.npmjs.com/) or [yarn](https://yarnpkg.com/)
 
-1. Install dependencies:
-   `npm install`
-2. Set the `GEMINI_API_KEY` in [.env.local](.env.local) to your Gemini API key
-3. Run the app:
-   `npm run dev`
+### 2. Clone the Repository
+
+Clone this project to your local machine.
+
+### 3. Install Dependencies
+
+Navigate to the project directory and install the required npm packages.
+
+```bash
+npm install
+```
+
+### 4. Configure Environment Variables
+
+The application requires a Google Gemini API key to function.
+
+- Rename the `.env.development.local` file to `.env.local`.
+- Open the `.env.local` file and replace `"YOUR_GEMINI_API_KEY"` with your actual API key.
+
+```
+REACT_APP_API_KEY="AIzaSy...your...key"
+```
+
+## Available Scripts
+
+In the project directory, you can run:
+
+### `npm start`
+
+Runs the app in development mode.<br />
+Open [http://localhost:3000](http://localhost:3000) to view it in the browser.
+
+The page will reload if you make edits.<br />
+You will also see any lint errors in the console.
+
+### `npm run build`
+
+Builds the app for production to the `build` folder.<br />
+It correctly bundles React in production mode and optimizes the build for the best performance.
+
+The build is minified and the filenames include the hashes.<br />
+Your app is ready to be deployed!

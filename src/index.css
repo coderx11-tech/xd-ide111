@@ -1,0 +1,29 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* Ensure editor content is visible with Okaidia theme */
+.editor-container, .editor-container textarea {
+  background-color: #272822 !important; /* Okaidia background */
+}
+
+/* Fix for react-simple-code-editor and prismjs theme */
+.editor-container pre {
+  background-color: transparent !important;
+}
+
+/* For fade-in animation on AI Chat Window */
+@keyframes fade-in-up {
+  from {
+    opacity: 0;
+    transform: translateY(1rem);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.animate-fade-in-up {
+  animation: fade-in-up 0.3s ease-out forwards;
+}

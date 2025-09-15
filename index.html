@@ -1,64 +1,15 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Xylon IDE</title>
-    <script src="https://cdn.tailwindcss.com"></script>
-    <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
-    
-    <!-- JSZip for project download -->
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
-
-    <!-- Prism.js for syntax highlighting -->
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/prism.min.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/plugins/autoloader/prism-autoloader.min.js"></script>
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/themes/prism-okaidia.min.css" />
-
-    <style>
-      /* Basic dark theme compatibility for Tailwind prose in modal */
-      .prose { color: #d1d5db; }
-      .prose h1, .prose h2, .prose h3, .prose h4, .prose code, .prose strong { color: #f9fafb; }
-      .prose a { color: #67e8f9; }
-      .prose code::before, .prose code::after { content: ''; }
-      .prose code { background-color: rgba(0,0,0,0.2); padding: 2px 4px; border-radius: 4px; font-weight: normal; }
-      
-      /* Ensure editor content is visible with Okaidia theme */
-      .editor-container, .editor-container textarea {
-        background-color: #272822 !important; /* Okaidia background */
-      }
-    </style>
-</head>
-<body class="bg-slate-800">
-    <div id="root"></div>
-    <script type="importmap">
+<script type="importmap">
 {
   "imports": {
     "react": "https://aistudiocdn.com/react@^19.1.1",
     "react-dom/": "https://aistudiocdn.com/react-dom@^19.1.1/",
     "react/": "https://aistudiocdn.com/react@^19.1.1/",
     "@google/genai": "https://aistudiocdn.com/@google/genai@^1.19.0",
-    "react-simple-code-editor": "https://aistudiocdn.com/react-simple-code-editor@^0.13.1",
-    "prismjs/": "https://aistudiocdn.com/prismjs@^1.30.0/"
+    "react-simple-code-editor": "https://aistudiocdn.com/react-simple-code-editor@^0.14.1",
+    "prismjs": "https://aistudiocdn.com/prismjs@^1.30.0",
+    "prismjs/": "https://aistudiocdn.com/prismjs@^1.30.0/",
+    "jszip": "https://aistudiocdn.com/jszip@^3.10.1",
+    "marked": "https://aistudiocdn.com/marked@^16.3.0"
   }
 }
 </script>
-    <script>
-        // Custom language definition for Xylon
-        Prism.languages.xylon = {
-            'comment': /#.*/,
-            'string': {
-                pattern: /"(?:\\.|[^\\"])*"/,
-                greedy: true
-            },
-            'keyword': /\b(?:let|print|if|else|func|return|import)\b/,
-            'function': /\b[a-zA-Z_]\w*(?=\s*\()/,
-            'number': /\b\d+\b/,
-            'operator': /[+\-*/=<>!]+/,
-            'punctuation': /[{}[\]();,]/,
-            'variable': /\b[a-zA-Z_]\w*\b/
-        };
-    </script>
-    <script type="module" src="/index.tsx"></script>
-</body>
-</html>
