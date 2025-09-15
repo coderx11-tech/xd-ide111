@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect, useRef, useImperativeHandle, forwardRef } from 'react';
 import { FileNode, FileType, TerminalHandle, FileSystem } from '../types';
 import { XylonRegistry } from '../constants';
@@ -215,7 +216,7 @@ const Terminal = forwardRef<TerminalHandle, { fileSystem: FileSystem }>(({ fileS
             if (subCmd === 'install' && pkgName) {
                 if (pkgName in XylonRegistry) {
                     const libContent = XylonRegistry[pkgName as keyof typeof XylonRegistry];
-                    const libsDir = 'xylon-project/libs';
+                    const libsDir = 'my-project/libs';
                     // Create libs directory if it doesn't exist
                     if (!fileSystem.findNode(libsDir)) {
                         fileSystem.addNode('folder', libsDir);
@@ -234,9 +235,12 @@ const Terminal = forwardRef<TerminalHandle, { fileSystem: FileSystem }>(({ fileS
         case 'run': {
             const path = args[0];
             const node = fileSystem.findNode(path);
-            if (node?.content) {
-                const interpreter = new XylonInterpreter((out) => output.push(out), fileSystem);
-                await interpreter.run(node.content);
+            if (node && node.type === FileType.FILE) {
+                if (node.content) {
+                    const interpreter = new XylonInterpreter((out) => output.push(out), fileSystem);
+                    await interpreter.run(node.content);
+                }
+                // If content is empty, do nothing, just don't crash.
             } else {
                 output.push(`run: could not find file '${path}'`);
             }

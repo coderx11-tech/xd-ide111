@@ -1,4 +1,5 @@
 {
   "name": "Copy of Xylon IDE",
-  "description": "A modern, web-based IDE for the Xylon programming language (.xvf files). It features a code editor with syntax highlighting, a simulated terminal for package management, and AI-powered code assistance via the Gemini API to explain and optimize your code."
+  "description": "A modern, web-based IDE for the Xylon programming language (.xvf files). It features a code editor with syntax highlighting, a simulated terminal for package management, and AI-powered code assistance via the Gemini API to explain and optimize your code.",
+  "requestFramePermissions": []
 }

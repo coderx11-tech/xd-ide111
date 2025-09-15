@@ -9,6 +9,7 @@ interface FileExplorerProps {
   onCreateFile: () => void;
   onCreateFolder: () => void;
   onResetProject: () => void;
+  onDownloadProject: () => void;
   dirtyFiles: string[];
 }
 
@@ -71,7 +72,7 @@ const FileEntry: React.FC<{
   );
 };
 
-const FileExplorer: React.FC<FileExplorerProps> = ({ files, selectedFile, onSelectFile, onCreateFile, onCreateFolder, onResetProject, dirtyFiles }) => {
+const FileExplorer: React.FC<FileExplorerProps> = ({ files, selectedFile, onSelectFile, onCreateFile, onCreateFolder, onResetProject, onDownloadProject, dirtyFiles }) => {
   return (
     <div className="bg-slate-900 text-slate-300 h-full p-2 overflow-y-auto">
       <div className="flex items-center justify-between text-sm font-semibold p-2 mb-2">
@@ -90,6 +91,13 @@ const FileExplorer: React.FC<FileExplorerProps> = ({ files, selectedFile, onSele
               title="New File"
             >
               <Icon name="file-plus" className="h-4 w-4" />
+            </button>
+             <button 
+              onClick={onDownloadProject} 
+              className="p-1 rounded hover:bg-slate-700"
+              title="Download Project as ZIP"
+            >
+              <Icon name="download" className="h-4 w-4" />
             </button>
              <button 
               onClick={onResetProject} 

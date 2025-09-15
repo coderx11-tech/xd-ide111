@@ -1,4 +1,6 @@
 
+
+
 import React, { useState, useCallback, useEffect, useRef } from 'react';
 import FileExplorer from './components/FileExplorer';
 import CodeEditor from './components/CodeEditor';
@@ -10,6 +12,10 @@ import { BLANK_FILE_STRUCTURE } from './constants';
 import { Chat, Part } from '@google/genai';
 import { ai, ideTools } from './services/geminiService';
 import { Icon } from './components/Icon';
+
+// --- Global declaration for JSZip from CDN ---
+declare const JSZip: any;
+
 
 // --- LocalStorage Keys ---
 const FILES_STORAGE_KEY = 'xylon_ide_filesystem';
@@ -102,7 +108,6 @@ const App: React.FC = () => {
   const [selection, setSelection] = useState({ start: 0, end: 0 });
 
   useEffect(() => {
-    // FIX: `systemInstruction` and `tools` must be nested inside the `config` object.
     const chat = ai.chats.create({
         model: 'gemini-2.5-flash',
         config: {
@@ -236,7 +241,7 @@ const App: React.FC = () => {
   };
 
   const handleCreateFromExplorer = (type: 'file' | 'folder') => {
-    const parentPath = getParentPath();
+    const parentPath = getParentPath(selectedFile?.path);
     const parentNode = findNode(files, parentPath);
     if (!parentNode || parentNode.type !== FileType.FOLDER) return;
 
@@ -248,7 +253,7 @@ const App: React.FC = () => {
         finalName = `${finalName}.xylon`;
     }
 
-    const newPath = `${parentPath}/${finalName}`;
+    const newPath = `${parentPath === files.path ? parentPath : parentPath + '/'}${finalName}`;
 
     if (parentNode.children?.some(child => child.name === finalName)) {
         alert(`A ${type} named "${finalName}" already exists here.`);
@@ -265,6 +270,36 @@ const App: React.FC = () => {
         setFileBuffers({});
         setSelectedFile(null);
     }
+  };
+  
+  const handleDownloadProject = () => {
+    const zip = new JSZip();
+
+    // Recursive function to add files to the zip
+    function addFilesToZip(node: FileNode, currentFolder: any) {
+        if (node.type === FileType.FILE) {
+            const content = fileBuffers[node.path] ?? node.content ?? '';
+            currentFolder.file(node.name, content);
+        } else if (node.type === FileType.FOLDER && node.children) {
+            const folder = currentFolder.folder(node.name);
+            node.children.forEach(child => addFilesToZip(child, folder));
+        }
+    }
+    
+    // Start with the root project folder's children
+    const projectFolder = zip.folder(files.name);
+    if (files.children) {
+        files.children.forEach(child => addFilesToZip(child, projectFolder));
+    }
+
+    zip.generateAsync({ type: 'blob' }).then((content: Blob) => {
+        const link = document.createElement('a');
+        link.href = URL.createObjectURL(content);
+        link.download = 'xylon-project.zip';
+        document.body.appendChild(link);
+        link.click();
+        document.body.removeChild(link);
+    });
   };
 
   const handleSendMessage = async (message: string) => {
@@ -310,14 +345,14 @@ const App: React.FC = () => {
             } catch (e) {
                 output = { error: e instanceof Error ? e.message : 'An unknown error occurred during tool execution.' };
             }
-
+            
             functionResponses.push({
-                functionResponse: { name: call.name, response: { output } }
+                functionResponse: { name: call.name, response: output }
             });
         }
         
-        // FIX: The `sendMessage` method expects a `message` object which contains `parts`.
-        response = await chatRef.current.sendMessage({ message: { parts: functionResponses } });
+        // FIX: The `sendMessage` method expects an object with a `message` property.
+        response = await chatRef.current.sendMessage({ message: functionResponses });
       }
 
     } catch (error) {
@@ -353,7 +388,7 @@ const App: React.FC = () => {
     }
   };
 
-  const editorContent = selectedFile ? (fileBuffers[selectedFile.path] ?? selectedFile.content ?? '') : '';
+  const editorContent = selectedFile ? (fileBuffers[selectedFile.path] ?? selectedFile.content ?? '') : "Create or select a file to begin.";
   const isDirty = selectedFile ? fileBuffers[selectedFile.path] !== undefined : false;
 
   return (
@@ -378,6 +413,7 @@ const App: React.FC = () => {
             onCreateFile={() => handleCreateFromExplorer('file')}
             onCreateFolder={() => handleCreateFromExplorer('folder')}
             onResetProject={handleResetProject}
+            onDownloadProject={handleDownloadProject}
             dirtyFiles={Object.keys(fileBuffers)}
           />
         </aside>
@@ -391,7 +427,7 @@ const App: React.FC = () => {
               />
             ) : (
               <div className="flex items-center justify-center h-full text-slate-500">
-                Create a file or folder to get started
+                {editorContent}
               </div>
             )}
           </div>
