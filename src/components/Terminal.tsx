@@ -147,6 +147,8 @@ class XylonInterpreter {
 const Terminal = forwardRef<TerminalHandle, { fileSystem: FileSystem }>(({ fileSystem }, ref) => {
   const [history, setHistory] = useState<React.ReactNode[]>(['Welcome to the Xylon IDE Terminal. Type "help" for a list of commands.']);
   const [input, setInput] = useState('');
+  const [commandHistory, setCommandHistory] = useState<string[]>([]);
+  const [historySearch, setHistorySearch] = useState({ active: false, query: '', index: -1 });
   const inputRef = useRef<HTMLInputElement>(null);
   const scrollRef = useRef<HTMLDivElement>(null);
 
@@ -155,8 +157,14 @@ const Terminal = forwardRef<TerminalHandle, { fileSystem: FileSystem }>(({ fileS
   }, [history]);
   
   const processCommand = async (command: string) => {
-    const newHistory = [...history, <span className="text-cyan-400">{`$ ${command}`}</span>];
-    const [cmd, ...args] = command.trim().split(/\s+/);
+    const trimmedCommand = command.trim();
+    const newHistory = [...history, <span className="text-cyan-400">{`$ ${trimmedCommand}`}</span>];
+    
+    if (trimmedCommand && trimmedCommand !== commandHistory[commandHistory.length - 1]) {
+        setCommandHistory(prev => [...prev, trimmedCommand]);
+    }
+
+    const [cmd, ...args] = trimmedCommand.split(/\s+/);
     
     let output: React.ReactNode[] = [];
     
@@ -263,12 +271,55 @@ const Terminal = forwardRef<TerminalHandle, { fileSystem: FileSystem }>(({ fileS
   }));
 
   const handleKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
+    if (historySearch.active && e.key !== 'r' && e.ctrlKey) {
+        // Let other ctrl combinations pass through
+        return;
+    } else if (historySearch.active && e.key !== 'Control' && e.key !== 'Shift' && e.key !== 'Alt') {
+        // Any meaningful keypress deactivates search mode unless it's another Ctrl+R
+        if (e.key === 'Enter') {
+            setHistorySearch({ active: false, query: '', index: -1 });
+        } else if (e.key === 'Escape') {
+            e.preventDefault();
+            setInput(historySearch.query); // Restore original input
+            setHistorySearch({ active: false, query: '', index: -1 });
+            return;
+        } else if (e.key.startsWith('Arrow')) {
+             setHistorySearch({ active: false, query: '', index: -1 });
+             // Don't return, let arrow key move cursor
+        } else {
+            setHistorySearch({ active: false, query: '', index: -1 });
+        }
+    }
+
+    if (e.key === 'r' && e.ctrlKey) {
+        e.preventDefault();
+        const query = !historySearch.active ? input : historySearch.query;
+        const startIndex = historySearch.active ? historySearch.index - 1 : commandHistory.length - 1;
+
+        if (!historySearch.active) {
+            setHistorySearch({ active: true, query: input, index: commandHistory.length });
+        }
+
+        for (let i = startIndex; i >= 0; i--) {
+            if (commandHistory[i].includes(query)) {
+                setInput(commandHistory[i]);
+                setHistorySearch(prev => ({ ...prev, query: query, index: i }));
+                return;
+            }
+        }
+        return;
+    }
+
     if (e.key === 'Enter') {
       e.preventDefault();
       processCommand(input);
       setInput('');
     }
   };
+
+  const promptText = historySearch.active
+    ? `(reverse-i-search)\`${historySearch.query}\`: `
+    : '$';
 
   return (
     <div className="bg-slate-900 text-slate-300 h-full p-4 font-mono text-sm flex flex-col" onClick={() => inputRef.current?.focus()}>
@@ -278,7 +329,7 @@ const Terminal = forwardRef<TerminalHandle, { fileSystem: FileSystem }>(({ fileS
         ))}
       </div>
       <div className="flex-shrink-0 flex items-center gap-2">
-        <span className="text-cyan-400">$</span>
+        <span className="text-cyan-400 whitespace-pre">{promptText}</span>
         <input
           ref={inputRef}
           type="text"
